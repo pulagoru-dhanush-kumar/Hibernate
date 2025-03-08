@@ -41,7 +41,7 @@ STEP1 : POM.XML
 
 
 
-STEP 2 :Mapping file with defualt getters and setters provided by IDE
+STEP 2 :Mapping file with defualt getters and setters provided by IDE standard java naming convention
 Syntax 1:
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -65,15 +65,13 @@ SYNTAX 2 :Mapping file with own getter setter names
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
     <class name="com.codegnan.Hibernate.Employee" table="emp">
-        <!-- Use custom getter and setter for 'id' -->
-        <id name="<class variable name>" column="<column name>" type="int" access="method">
+        <!-- Use field access for 'id' -->
+        <id name="<class variavle name>" column="<column name>" type="int" access="field">
             <generator class="assigned"/>
         </id>
 
-        <property name="<class variable name>" column="<column name>" type="string" access="method">
-            <access name="<our getter method name>"/>
-            <access name="<our setter method name>"/>
-        </property> 
+        <!-- Use field access for 'name' -->
+        <property name="<class variavle name>" column="<column name>" type="string" access="field"/>
     </class>
 </hibernate-mapping>
 
