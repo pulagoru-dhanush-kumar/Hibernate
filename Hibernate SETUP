@@ -1,0 +1,221 @@
+STEP1 : POM.XML
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.codegnan</groupId>
+  <artifactId>Hibernate</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Hibernate</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>5.3.36.Final</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.33</version>
+</dependency>
+  </dependencies>
+</project>
+
+
+
+
+STEP 2 :Mapping file with defualt getters and setters provided by IDE
+Syntax 1:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.codegnan.Hibernate.Employee" table="emp">
+        <id name="<class variable name>" column="<column name>" type="int"/>
+        <property name="<class variable name>" column="<COLUMN NAME>" type="string"/>
+    </class>
+</hibernate-mapping>
+
+
+
+SYNTAX 2 :Mapping file with own getter setter names
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.codegnan.Hibernate.Employee" table="emp">
+        <!-- Use custom getter and setter for 'id' -->
+        <id name="<class variable name>" column="<column name>" type="int" access="method">
+            <generator class="assigned"/>
+        </id>
+
+        <property name="<class variable name>" column="<column name>" type="string" access="method">
+            <access name="<our getter method name>"/>
+            <access name="<our setter method name>"/>
+        </property> 
+    </class>
+</hibernate-mapping>
+
+
+
+
+STEP 3:CONFIGURATION.XML 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/companydb</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">123456789</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Mapping files -->
+        <mapping resource="Mapping.xml"/>
+    </session-factory>
+</hibernate-configuration>
+
+
+Step4:ClientAPP/Main APP
+package com.codegnan.Hibernate;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+    public static void main(String[] args) {
+        // 1. Creating configuration object
+        Configuration config = new Configuration();
+        config.configure("Configuration.xml"); // Specify the Hibernate configuration file
+
+        // 2. Creating SessionFactory object
+        SessionFactory sf = null;
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            sf = config.buildSessionFactory(); // Build the SessionFactory
+
+            // 3. Creating Session object
+            session = sf.openSession();
+
+            // 4. Creating Transaction object
+            transaction = session.beginTransaction();
+
+            // 5. Creating persistence methods
+            Employee employee = new Employee(2, "kumar", "development", 10000.0f);
+            session.save(employee); // Save the employee object
+            System.out.println("Data inserted successfully");
+
+            // 6.Commit the transaction
+            transaction.commit();
+        } catch (Exception e) {
+         
+            e.printStackTrace();
+        } finally {
+            //7. Close resources
+            if (session != null) {
+                session.close(); // Close the session
+            }
+            if (sf != null) {
+                sf.close(); // Close the SessionFactory
+            }
+        }
+    }
+}
+
+
+
+Example:
+package com.codegnan.Hibernate;
+
+public class Employee {
+    private int id;
+    private String name;
+    private String dept;
+    private float salary;
+
+    // Default constructor (required by Hibernate)
+    public Employee() {}
+
+    // Parameterized constructor
+    public Employee(int id, String name, String dept, float salary) {
+        this.id = id;
+        this.name = name;
+        this.dept = dept;
+        this.salary = salary;
+    }
+
+    // Getters and setters (required by Hibernate)
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDept() {
+        return dept;
+    }
+
+    public void setDept(String dept) {
+        this.dept = dept;
+    }
+
+    public float getSalary() {
+        return salary;
+    }
+
+    public void setSalary(float salary) {
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee details: " + this.dept + " " + this.id + " " + this.name + " " + this.salary;
+    }
+}
+
+
+
